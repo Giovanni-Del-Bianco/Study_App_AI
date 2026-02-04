@@ -1,0 +1,5 @@
+{
+  "name": "AI Study Buddy",
+  "description": "An intelligent study application that analyzes your PDF documents and generates custom flashcards and multiple-choice quizzes to help you master any subject at a university level.",
+  "requestFramePermissions": []
+}

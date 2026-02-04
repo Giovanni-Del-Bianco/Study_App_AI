@@ -1,0 +1,13 @@
+# Orchestratore Quantistico Ibrido Esecuzione Distribuita e Incrementale
+
+ Progetto di Tesi Triennale in Informatica – Università di Pisa
+ Un framework Python avanzato per ottimizzare l'esecuzione di algoritmi quantistici nell'era NISQ, combinando la distribuzione shot-wise con una logica di convergenza adattiva.
+
+ Info  Dettagli 
+ ---  --- 
+ 👤 Autore  Giovanni Del Bianco 
+ 🛠️ Tech Stack  Python 3.12+, Qiskit, JSON-driven Logic, Multiprocessing 
+ 🧠 Key Learning  Progettazione di Architetture a Ciclo di Controllo, ottimizzazione di risorse e gestione di workflow distribuiti. 
+ 🎯 Obiettivo  Ridurre il numero di shot necessari alla convergenza e parallelizzare l'esecuzione su backend eterogenei. 
+ 🔗 Risorse  [Scarica la Tesi (PDF)](.Tesi.pdf) • [Repository Quantum Executor](httpsgithub.comGBisiquantum-executor) 
+
