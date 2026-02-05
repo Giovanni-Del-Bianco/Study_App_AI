@@ -146,37 +146,5 @@ ai-study-buddy/
 ## 📜 License
 
 Distributed under the MIT License.
-```
 
----
 
-### 🎁 Bonus: Come aggiungere la Persistenza (Codice)
-
-Per risolvere il tuo problema della perdita dati al refresh, modifica il tuo `App.tsx` aggiungendo questo meccanismo di salvataggio automatico.
-
-Sostituisci la riga `const [studySets, setStudySets] = useState<StudySet[]>([]);` con questo:
-
-```typescript
-// In App.tsx
-
-// 1. Inizializza lo stato leggendo dal LocalStorage (se esiste)
-const [studySets, setStudySets] = useState<StudySet[]>(() => {
-    const saved = localStorage.getItem('studySets');
-    if (saved) {
-        try {
-            return JSON.parse(saved);
-        } catch (e) {
-            console.error("Failed to parse saved data", e);
-            return [];
-        }
-    }
-    return [];
-});
-
-// 2. Aggiungi questo useEffect per salvare ogni volta che studySets cambia
-useEffect(() => {
-    localStorage.setItem('studySets', JSON.stringify(studySets));
-}, [studySets]);
-```
-
-Con questa piccola modifica, la tua app sembrerà un prodotto completo e i tuoi dati rimarranno salvati nel browser finché non cancelli la cache!
