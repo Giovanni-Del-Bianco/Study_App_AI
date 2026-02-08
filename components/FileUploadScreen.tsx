@@ -1,3 +1,4 @@
+
 import React, { useCallback, useState } from 'react';
 import { UploadIcon, CloseIcon, ArrowLeftIcon } from './icons';
 
@@ -70,7 +71,8 @@ const FileUploadScreen: React.FC<FileUploadScreenProps> = ({ onCreate, onBack, e
     e.stopPropagation();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const pdfFiles = Array.from(e.dataTransfer.files).filter(f => f.type === "application/pdf");
+      const filesArray = Array.from(e.dataTransfer.files) as File[];
+      const pdfFiles = filesArray.filter(f => f.type === "application/pdf");
       if(pdfFiles.length > 0) {
         onFilesSelect(pdfFiles);
       }
@@ -79,7 +81,7 @@ const FileUploadScreen: React.FC<FileUploadScreenProps> = ({ onCreate, onBack, e
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      onFilesSelect(Array.from(e.target.files));
+      onFilesSelect(Array.from(e.target.files) as File[]);
       e.target.value = ''; // Reset input to allow selecting the same file again
     }
   };

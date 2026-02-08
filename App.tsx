@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Flashcard, QuizQuestion, ViewState, HistoryFlashcard, HistoryQuizQuestion, StudySet } from './types';
 import { extractTextFromPdf } from './services/pdfService';
 import { generateFlashcards, generateQuiz } from './services/geminiService';
@@ -14,7 +14,27 @@ import HomeScreen from './components/HomeScreen';
 
 const App: React.FC = () => {
     const [view, setView] = useState<ViewState>(ViewState.Home);
-    const [studySets, setStudySets] = useState<StudySet[]>([]);
+    
+    // Initialize state from LocalStorage
+    const [studySets, setStudySets] = useState<StudySet[]>(() => {
+        const saved = localStorage.getItem('studySets');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Migration logic: Add icon if missing
+                const defaultIcons = ['📚', '🎓', '📝', '💡', '🚀', '🧠', '🔬', '⚖️'];
+                return parsed.map((set: any) => ({
+                    ...set,
+                    icon: set.icon || defaultIcons[Math.floor(Math.random() * defaultIcons.length)]
+                }));
+            } catch (e) {
+                console.error("Failed to parse saved data", e);
+                return [];
+            }
+        }
+        return [];
+    });
+
     const [activeStudySetId, setActiveStudySetId] = useState<string | null>(null);
     const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
     const [quizQuestions, setQuizQuestions] = useState<QuizQuestion[]>([]);
@@ -22,6 +42,19 @@ const App: React.FC = () => {
     const [loadingMessage, setLoadingMessage] = useState<string>('');
     const [language, setLanguage] = useState<'en' | 'it'>('it');
     const [isCorrectionSession, setIsCorrectionSession] = useState(false);
+
+    // Persist state to LocalStorage
+    useEffect(() => {
+        // File objects are not serializable by JSON.stringify (they become {}).
+        // We map them to simple objects with the 'name' property to ensure the UI 
+        // can still list the files after a reload. The actual text content is safely 
+        // stored in 'extractedTexts'.
+        const setsToSave = studySets.map(set => ({
+            ...set,
+            pdfFiles: set.pdfFiles.map(f => ({ name: f.name, type: 'application/pdf', size: 0, lastModified: 0 }))
+        }));
+        localStorage.setItem('studySets', JSON.stringify(setsToSave));
+    }, [studySets]);
 
     const activeStudySet = useMemo(() => {
         return studySets.find(s => s.id === activeStudySetId) || null;
@@ -71,6 +104,9 @@ const App: React.FC = () => {
                 })
             );
 
+            const defaultIcons = ['📚', '🎓', '📝', '💡', '🚀', '🧠', '🔬', '⚖️'];
+            const randomIcon = defaultIcons[Math.floor(Math.random() * defaultIcons.length)];
+
             const newSet: StudySet = {
                 id: Date.now().toString(),
                 name,
@@ -78,7 +114,8 @@ const App: React.FC = () => {
                 extractedTexts: texts,
                 flashcardHistory: [],
                 quizHistory: [],
-                imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`,
+                imageUrl: `https://picsum.photos/seed/${Date.now()}/400/300`, // Legacy
+                icon: randomIcon,
                 createdAt: Date.now(),
             };
             
@@ -157,6 +194,23 @@ const App: React.FC = () => {
             }
             return set;
         }));
+    };
+
+    const handleUpdateStudySetIcon = (setId: string, newIcon: string) => {
+        setStudySets(prevSets => prevSets.map(set => {
+            if (set.id === setId) {
+                return { ...set, icon: newIcon };
+            }
+            return set;
+        }));
+    };
+
+    const handleDeleteStudySet = (setId: string) => {
+        setStudySets(prevSets => prevSets.filter(set => set.id !== setId));
+        if (activeStudySetId === setId) {
+            setActiveStudySetId(null);
+            setView(ViewState.Home);
+        }
     };
 
     const handleSelectStudySet = (setId: string) => {
@@ -296,13 +350,31 @@ const App: React.FC = () => {
     const renderView = () => {
         switch (view) {
             case ViewState.Home:
-                return <HomeScreen studySets={studySets} onSelectStudySet={handleSelectStudySet} onCreateNew={() => setView(ViewState.FileUpload)} language={language} />;
+                return <HomeScreen 
+                            studySets={studySets} 
+                            onSelectStudySet={handleSelectStudySet} 
+                            onCreateNew={() => setView(ViewState.FileUpload)} 
+                            language={language}
+                            onDeleteStudySet={handleDeleteStudySet}
+                            onUpdateStudySetName={handleUpdateStudySetName}
+                            onUpdateStudySetIcon={handleUpdateStudySetIcon}
+                        />;
             case ViewState.FileUpload:
                 return <FileUploadScreen onCreate={handleCreateStudySet} onBack={handleBackToHome} error={error} language={language} />;
             case ViewState.Loading:
                 return <LoadingIndicator message={loadingMessage} />;
             case ViewState.Dashboard:
-                if (!activeStudySet) return <HomeScreen studySets={studySets} onSelectStudySet={handleSelectStudySet} onCreateNew={() => setView(ViewState.FileUpload)} language={language} />; // Fallback
+                if (!activeStudySet) return (
+                    <HomeScreen 
+                        studySets={studySets} 
+                        onSelectStudySet={handleSelectStudySet} 
+                        onCreateNew={() => setView(ViewState.FileUpload)} 
+                        language={language}
+                        onDeleteStudySet={handleDeleteStudySet}
+                        onUpdateStudySetName={handleUpdateStudySetName}
+                        onUpdateStudySetIcon={handleUpdateStudySetIcon}
+                    />
+                );
                 return <StudyDashboardScreen 
                             studySet={activeStudySet}
                             onGenerateFlashcards={handleGenerateFlashcards} 
@@ -324,7 +396,15 @@ const App: React.FC = () => {
                  if (!activeStudySet) return null;
                  return <HistoryScreen flashcardHistory={activeStudySet.flashcardHistory} quizHistory={activeStudySet.quizHistory} onBack={handleBackToDashboard} language={language} />;
             default:
-                return <HomeScreen studySets={studySets} onSelectStudySet={handleSelectStudySet} onCreateNew={() => setView(ViewState.FileUpload)} language={language} />;
+                return <HomeScreen 
+                            studySets={studySets} 
+                            onSelectStudySet={handleSelectStudySet} 
+                            onCreateNew={() => setView(ViewState.FileUpload)} 
+                            language={language}
+                            onDeleteStudySet={handleDeleteStudySet}
+                            onUpdateStudySetName={handleUpdateStudySetName}
+                            onUpdateStudySetIcon={handleUpdateStudySetIcon}
+                        />;
         }
     };
 

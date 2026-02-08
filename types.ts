@@ -29,7 +29,8 @@ export interface StudySet {
     extractedTexts: Record<string, string>;
     flashcardHistory: HistoryFlashcard[];
     quizHistory: HistoryQuizQuestion[];
-    imageUrl: string;
+    imageUrl: string; // Deprecated but kept for type safety with legacy data
+    icon?: string; // New property for the emoji icon
     createdAt: number;
 }
 

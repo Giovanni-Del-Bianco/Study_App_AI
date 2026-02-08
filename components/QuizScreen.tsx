@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { QuizQuestion } from '../types';
-import { ReloadIcon, HintIcon } from './icons';
+import { ReloadIcon, HintIcon, ArrowLeftIcon } from './icons';
 
 interface QuizScreenProps {
   quizQuestions: QuizQuestion[];
@@ -151,8 +152,9 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ quizQuestions, onRegenerate, on
             )}
              <button
                 onClick={onBack}
-                className="text-slate-400 hover:text-slate-200 transition-colors duration-200 text-sm font-medium"
+                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-slate-700/60 text-slate-300 rounded-md hover:bg-slate-700 hover:text-slate-100 transition-colors"
             >
+                <ArrowLeftIcon className="h-5 w-5" />
                 {content[language].backToDashboard}
             </button>
         </div>
@@ -222,8 +224,9 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ quizQuestions, onRegenerate, on
             )}
             <button
                 onClick={onBack}
-                className="text-slate-400 hover:text-slate-200 transition-colors duration-200 text-sm font-medium"
+                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-slate-700/60 text-slate-300 rounded-md hover:bg-slate-700 hover:text-slate-100 transition-colors"
             >
+                <ArrowLeftIcon className="h-5 w-5" />
                 {content[language].backToDashboard}
             </button>
         </div>

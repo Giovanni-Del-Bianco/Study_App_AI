@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import { Flashcard } from '../types';
 import { ArrowLeftIcon, ArrowRightIcon, ReloadIcon, CheckIcon, CloseIcon, HintIcon } from './icons';
@@ -154,9 +155,15 @@ const FlashcardScreen: React.FC<FlashcardScreenProps> = ({ flashcards, onRegener
             </button>
           )}
         </div>
-        <button onClick={onBack} className="mt-8 text-slate-400 hover:text-slate-200 transition-colors duration-200 text-sm font-medium">
-          {content[language].backToDashboard}
-        </button>
+        <div className="flex justify-center mt-8">
+            <button 
+                onClick={onBack} 
+                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-slate-700/60 text-slate-300 rounded-md hover:bg-slate-700 hover:text-slate-100 transition-colors"
+            >
+                <ArrowLeftIcon className="h-5 w-5" />
+                {content[language].backToDashboard}
+            </button>
+        </div>
       </div>
     );
   }
@@ -233,8 +240,9 @@ const FlashcardScreen: React.FC<FlashcardScreenProps> = ({ flashcards, onRegener
        <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
              <button
                 onClick={onBack}
-                className="text-slate-400 hover:text-slate-200 transition-colors duration-200 text-sm font-medium"
+                className="flex items-center gap-2 px-5 py-2 text-sm font-semibold bg-slate-700/60 text-slate-300 rounded-md hover:bg-slate-700 hover:text-slate-100 transition-colors"
             >
+                <ArrowLeftIcon className="h-5 w-5" />
                 {content[language].backToDashboard}
             </button>
         </div>
